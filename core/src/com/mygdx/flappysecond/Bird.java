@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Align;
 
@@ -29,7 +30,11 @@ public class Bird extends Actor {
     private TextureRegion playerIdle;
     private Animation flightAnimation;
 
+    private Rectangle bounds;
+
     public Bird() {
+
+        bounds = new Rectangle(getX(), getY(), getWidth(), getHeight());
         loadTextures();
     }
 
@@ -54,17 +59,22 @@ public class Bird extends Actor {
 
         super.act(delta);
 
+        bounds.set(getX(), getY(), getWidth(), getHeight());
+
         stateTime += delta;
 
-        setPosition(getX() + delta * speed, getY() - delta * gravity);
+        if (speed != 0)
+            setX(getX() + delta * speed);
 
-        if (getState().equals(Bird.State.ALIVE)) {
-            if (Gdx.input.justTouched()) {
-                gravity = -60.0f;
-            }
-            else {
-                gravity += 3;
-            }
+        if (gravity != 0)
+            setY(getY() - delta * gravity);
+
+        if (Gdx.input.justTouched() && getState().equals(Bird.State.ALIVE)) {
+            gravity = -60.0f;
+            Assets.wingSound.play();
+        }
+        else {
+            gravity += 3;
         }
 
         setRotation(-gravity * 0.5f);
@@ -80,6 +90,7 @@ public class Bird extends Actor {
         }
         else if (state.equals(State.HIT)) {
             playerFrame = playerIdle;
+            speed = 0;
         }
 
         Color color = getColor();
@@ -94,5 +105,13 @@ public class Bird extends Actor {
 
     public void setState(State state) {
         this.state = state;
+    }
+
+    public Rectangle getBounds() {
+        return bounds;
+    }
+
+    public void setBounds(Rectangle bounds) {
+        this.bounds = bounds;
     }
 }

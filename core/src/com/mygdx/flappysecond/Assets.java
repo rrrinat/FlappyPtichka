@@ -21,6 +21,9 @@ public class Assets implements Disposable {
 	public static Texture yellowTexture;
 	public static TextureAtlas yellowPack;
 
+	public static Sound dieSound;
+	public static Sound hitSound;
+	public static Sound pointSound;
 	public static Sound wingSound;
 
     public Assets() {
@@ -38,7 +41,10 @@ public class Assets implements Disposable {
 		yellowTexture = new Texture("pic/brent/bird.png");
 		yellowPack = new TextureAtlas("pic/yellow.pack");
 
-		wingSound = Gdx.audio.newSound(Gdx.files.internal("pic/brent/sfx_wing.ogg"));
+		dieSound = Gdx.audio.newSound(Gdx.files.internal("sounds/sfx_die.ogg"));
+		hitSound = Gdx.audio.newSound(Gdx.files.internal("sounds/sfx_hit.ogg"));
+		pointSound = Gdx.audio.newSound(Gdx.files.internal("sounds/sfx_point.ogg"));
+		wingSound = Gdx.audio.newSound(Gdx.files.internal("sounds/sfx_wing.ogg"));
     }    
     
 	@Override

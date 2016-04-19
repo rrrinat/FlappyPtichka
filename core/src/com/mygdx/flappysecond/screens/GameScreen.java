@@ -16,6 +16,7 @@ import com.mygdx.flappysecond.Assets;
 import com.mygdx.flappysecond.Bird;
 import com.mygdx.flappysecond.Env;
 import com.mygdx.flappysecond.FlappySecond;
+import com.mygdx.flappysecond.Pipe;
 
 import javafx.scene.input.KeyCode;
 
@@ -34,14 +35,15 @@ public class GameScreen implements Screen {
 
     private int step = 6;
     private float spacing = 30;
+    private float gap = 19;
     private Image backgroundImage;
     private Bird bird;
 
     private Image groundImage;
     private Image groundImage2;
 
-    private Array<Image> topPipes = new Array<Image>();
-    private Array<Image> bottomPipes = new Array<Image>();
+    private Array<Pipe> topPipes = new Array<Pipe>();
+    private Array<Pipe> bottomPipes = new Array<Pipe>();
 
     @Override
     public void show() {
@@ -64,13 +66,10 @@ public class GameScreen implements Screen {
 
         bird = new Bird();
         bird.setSize(birdWidth, birdHeight);
-        bird.setBounds(0, 0, birdWidth, birdHeight);
         bird.setPosition(viewport.getWorldWidth() / 3 - birdWidth / 2, viewport.getWorldHeight() / 2 - birdHeight / 2);
         stage.addActor(bird);
 
         Gdx.input.setInputProcessor(stage);
-
-        Gdx.app.log(Env.game.TAG, "Test Succesful");
     }
 
     private void creatingPipes() {
@@ -80,26 +79,26 @@ public class GameScreen implements Screen {
         float pipeWidth = pipeHeight * pipeRatio;
 
         //centerBottomPipe = viewport.getWorldHeight()/2 - pipeHeight;
-        centerBottomPipe = -24.0f;
+        //centerBottomPipe = -24.0f;
+        //centerBottomPipe = 4.0f;
+        centerBottomPipe = MathUtils.random(-24.0f, 4.0f);
 
         float firstOffset = spacing * 3;
 
         for (int i = 0; i < 3; ++i) {
-            Image bottomPipe = new Image(Assets.bottomPipeTexture);
+            Pipe bottomPipe = new Pipe(Assets.bottomPipeTexture);
             bottomPipe.setSize(pipeWidth, pipeHeight);
-            bottomPipe.setBounds(0, 0, pipeWidth, pipeHeight);
             bottomPipe.setPosition(firstOffset + i * spacing, centerBottomPipe);
             bottomPipes.add(bottomPipe);
             stage.addActor(bottomPipe);
         }
 
-        float centerTopPipe = centerBottomPipe + pipeHeight;
+        float centerTopPipe = centerBottomPipe + pipeHeight + gap;
 
         for (int i = 0; i < 3; ++i) {
 
-            Image topPipe = new Image(Assets.topPipeTexture);
+            Pipe topPipe = new Pipe(Assets.topPipeTexture);
             topPipe.setSize(pipeWidth, pipeHeight);
-            topPipe.setBounds(0, 0, pipeWidth, pipeHeight);
             topPipe.setPosition(firstOffset + i * spacing, centerTopPipe);
             topPipes.add(topPipe);
             stage.addActor(topPipe);
@@ -120,6 +119,24 @@ public class GameScreen implements Screen {
         stage.addActor(groundImage2);
     }
 
+    private boolean checkCollision() {
+
+        if (bird.getState().equals(Bird.State.HIT)) {
+
+            return false;
+        }
+
+        for(int i = 0; i < 3; ++i) {
+            if (topPipes.get(i).getBounds().overlaps(bird.getBounds())) {
+                return true;
+            }
+            if (bottomPipes.get(i).getBounds().overlaps(bird.getBounds())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void render(float delta) {
 
@@ -135,38 +152,24 @@ public class GameScreen implements Screen {
             groundImage2.setX(groundImage.getX() + groundImage.getWidth());
         }
 
-        /*
-        float x, y, randomHeight;
-        for(int i = 0; i < 2; ++i) {
-            if ((camera.position.x + camera.viewportWidth / 2 ) >=
-                    (bottomPipes.get(i).getX()+ bottomPipes.get(i).getWidth() + groundImage.getWidth())) {
-
-                x = step * (TUBE_SPACING + Tube.TREE_WIDTH);
-                randomHeight = MathUtils.random(TUBE_FLUCTUATION);
-                y = LOW_BOTTOM_TUBE + randomHeight;
-                bottomTubes.get(i).getBody().setTransform(x, y, 0);
-
-                y = y + TUBE_HEIGHT + TUBE_GAP;
-                topTubes.get(i).getBody().setTransform(x, y, 0);
-
-                step++;
-            }
-        }
-        */
         for(int i = 0; i < 3; ++i) {
             if ((camera.position.x + camera.viewportWidth / 2) >=
                     (bottomPipes.get(i).getX() + bottomPipes.get(i).getWidth() + groundImage.getWidth())) {
+                centerBottomPipe = MathUtils.random(-24.0f, 4.0f);
+                float centerTopPipe = centerBottomPipe + bottomPipes.get(i).getHeight() + gap;
                 topPipes.get(i).setX(step * spacing);
                 bottomPipes.get(i).setX(step * spacing);
+                topPipes.get(i).setY(centerTopPipe);
+                bottomPipes.get(i).setY(centerBottomPipe);
                 step++;
             }
         }
 
         //collisions
-        for(int i = 0; i < 3; ++i) {
-            if (topPipes.get(i).)
+        if (checkCollision()) {
+            bird.setState(Bird.State.HIT);
+            Assets.hitSound.play();
         }
-        //if (bird.)
 
         // Update stage
         stage.act(delta);
