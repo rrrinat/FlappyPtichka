@@ -16,6 +16,7 @@ import com.mygdx.flappysecond.Assets;
 import com.mygdx.flappysecond.Bird;
 import com.mygdx.flappysecond.Env;
 import com.mygdx.flappysecond.FlappySecond;
+import com.mygdx.flappysecond.Hud;
 import com.mygdx.flappysecond.Pipe;
 
 import javafx.scene.input.KeyCode;
@@ -28,14 +29,14 @@ public class GameScreen implements Screen {
     private SpriteBatch batch;
     private OrthographicCamera camera;
     private Viewport viewport;
-
     private Stage stage;
+    private Hud hud;
 
     private float centerBottomPipe = 0.0f;
 
     private int step = 6;
     private float spacing = 30;
-    private float gap = 19;
+    private float gap = 20;
     private Image backgroundImage;
     private Bird bird;
 
@@ -51,8 +52,8 @@ public class GameScreen implements Screen {
         batch    = Env.game.getBatch();
         camera   = Env.game.getCamera();
         viewport = Env.game.getViewport();
-
-        stage = new Stage(viewport, batch);
+        stage    = new Stage(viewport, batch);
+        hud      = new Hud();
 
         backgroundImage = new Image(Assets.background);
         backgroundImage.setSize(viewport.getWorldWidth(), viewport.getWorldHeight());
@@ -78,9 +79,6 @@ public class GameScreen implements Screen {
         float pipeHeight = Assets.bottomPipeTexture.getHeight() * Env.game.TEX_RATIO;
         float pipeWidth = pipeHeight * pipeRatio;
 
-        //centerBottomPipe = viewport.getWorldHeight()/2 - pipeHeight;
-        //centerBottomPipe = -24.0f;
-        //centerBottomPipe = 4.0f;
         centerBottomPipe = MathUtils.random(-24.0f, 4.0f);
 
         float firstOffset = spacing * 3;
@@ -171,9 +169,31 @@ public class GameScreen implements Screen {
             Assets.hitSound.play();
         }
 
-        // Update stage
+        //
+        Array<Boolean> crossed = new Array<Boolean>();
+        for(int i = 0; i < 3; ++i) {
+            crossed.add(isCrossed(bottomPipes.get(i)));
+        }
+
         stage.act(delta);
+
+        for(int i = 0; i < 3; ++i) {
+            if (!crossed.get(i) && isCrossed(bottomPipes.get(i))) {
+                hud.incrementScore();
+                Assets.pointSound.play();
+            }
+        }
+
         stage.draw();
+
+        Stage hudStage = hud.getStage();
+        hudStage.act(delta);
+        hudStage.draw();
+
+    }
+
+    public boolean isCrossed(Pipe pipe) {
+        return bird.getX() >= pipe.getX() + pipe.getWidth() / 2;
     }
 
     @Override
@@ -202,8 +222,10 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-        // TODO Auto-generated method stub
 
+        Gdx.app.log(Env.game.TAG, "GameScreen Dispose");
+        stage.dispose();
+        hud.dispose();
     }
 
 }

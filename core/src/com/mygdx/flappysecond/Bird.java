@@ -40,9 +40,7 @@ public class Bird extends Actor {
 
     private void loadTextures() {
 
-        //setOrigin(Align.bottomLeft);
-        setOrigin(Align.topRight);
-        //setOrigin(Align.center);
+        setOrigin(Align.center);
 
         playerIdle = new TextureRegion(Assets.yellowTexture);
         playerFrame = playerIdle;
@@ -74,10 +72,10 @@ public class Bird extends Actor {
             Assets.wingSound.play();
         }
         else {
-            gravity += 3;
+            gravity += 3.3;
         }
 
-        setRotation(-gravity * 0.5f);
+        setRotation(-gravity * 0.35f);
     }
 
     @Override

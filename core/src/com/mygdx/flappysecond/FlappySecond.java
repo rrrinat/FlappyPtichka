@@ -29,8 +29,12 @@ public class FlappySecond extends Game {
 	private OrthographicCamera camera;
 
 	private Viewport viewport;
+	private Viewport hudViewport;
 
 	private Assets assets;
+	private FontManager fontManager;
+
+	private GameScreen gameScreen;
 
 	@Override
 	public void create () {
@@ -41,16 +45,21 @@ public class FlappySecond extends Game {
 
 		camera   = new OrthographicCamera();
 		viewport = new FitViewport(SCENE_WIDTH * PIX_TO_METER, SCENE_HEIGHT * PIX_TO_METER, camera);
+		hudViewport = new FitViewport(480, 800);
 
 		assets = new Assets();
+		fontManager = new FontManager();
 
-		setScreen(new GameScreen());
+		gameScreen = new GameScreen();
+		setScreen(gameScreen);
 	}
 
 	@Override
 	public void dispose() {
 
 		super.dispose();
+		gameScreen.dispose();
+		fontManager.dispose();
 		assets.dispose();
 	}
 
@@ -70,5 +79,17 @@ public class FlappySecond extends Game {
 
 	public Viewport getViewport() {
 		return viewport;
+	}
+
+	public FontManager getFontManager() {
+		return fontManager;
+	}
+
+	public Viewport getHudViewport() {
+		return hudViewport;
+	}
+
+	public void setHudViewport(Viewport hudViewport) {
+		this.hudViewport = hudViewport;
 	}
 }
